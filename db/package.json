@@ -1,0 +1,25 @@
+{
+  "name": "db",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "metadata": "hasura metadata apply --skip-update-check",
+    "console": "hasura console"
+  },
+  "homepage": "https://github.com/marc-aurele-besner/ai3-api",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marc-aurele-besner/ai3-api"
+  },
+  "author": {
+    "name": "Marc-Aurele Besner",
+    "url": "https://github.com/marc-aurele-besner"
+  },
+  "bugs": {
+    "url": "https://github.com/marc-aurele-besner/ai3-api/issues"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "hasura-cli": "2.36.2"
+  }
+}
