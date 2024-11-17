@@ -1,0 +1,5 @@
+- "!include mainnet__metadata.yaml"
+- "!include mainnet_blocks.yaml"
+- "!include mainnet_events.yaml"
+- "!include taurus__metadata.yaml"
+- "!include taurus_blocks.yaml"
