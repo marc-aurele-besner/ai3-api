@@ -1,7 +1,7 @@
 {
-  "name": "indexer",
+  "name": "indexer-taurus",
   "version": "1.0.0",
-  "description": "AI3 API - Indexer",
+  "description": "AI3 API - Indexer Taurus",
   "main": "dist/index.js",
   "scripts": {
     "codegen": "subql codegen",

@@ -8,8 +8,8 @@ import {
 const project: SubstrateProject = {
   specVersion: "1.0.0",
   version: "0.0.1",
-  name: "ai3-api-indexer",
-  description: "AI3 API - Indexer",
+  name: "ai3-api-indexer-taurus",
+  description: "AI3 API - Indexer Taurus",
   repository: "https://github.com/marc-aurele-besner/ai3-api",
   runner: {
     node: {
