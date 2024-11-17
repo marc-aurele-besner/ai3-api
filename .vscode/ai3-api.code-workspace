@@ -9,8 +9,8 @@
       "path": "../db"
     },
     {
-      "name": "Indexer",
-      "path": "../indexer"
+      "name": "Indexers",
+      "path": "../indexers"
     }
   ],
   "settings": {

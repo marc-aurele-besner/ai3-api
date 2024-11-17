@@ -194,11 +194,10 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
     volumes:
-      - ./indexer:/indexer
+      - ./indexers/mainnet:/indexer
     command:
       - ${SUB_COMMAND:-}
       - -f=/indexer
-      - -c=/indexer/project-mainnet.yaml
       - --db-schema=mainnet
       - --workers=4
       - --unsafe
@@ -230,11 +229,10 @@ services:
       DB_HOST: postgres
       DB_PORT: 5432
     volumes:
-      - ./indexer:/indexer
+      - ./indexers/taurus:/indexer
     command:
       - ${SUB_COMMAND:-}
       - -f=/indexer
-      - -c=/indexer/project-taurus.yaml
       - --db-schema=taurus
       - --workers=4
       - --unsafe

@@ -1,12 +1,10 @@
 {
-  "name": "indexer",
+  "name": "indexer-mainnet",
   "version": "1.0.0",
   "description": "AI3 API - Indexer",
   "main": "dist/index.js",
   "scripts": {
-    "codegen:mainnet": "RPC_URLS=ws://caddy:8000 CHAIN_ID=0x66455a580aabff303720aa83adbe6c44502922251c03ba73686d5245da9e21bd subql codegen && mv project.yaml project-mainnet.yaml",
-    "codegen:taurus": "RPC_URLS=ws://caddy:8001 CHAIN_ID=0x295aeafca762a304d92ee1505548695091f6082d3f0aa4d092ac3cd6397a6c5e subql codegen && mv project.yaml project-taurus.yaml",
-    "codegen": "npm run codegen:mainnet && npm run codegen:taurus",
+    "codegen": "subql codegen",
     "build": "subql build"
   },
   "homepage": "https://github.com/marc-aurele-besner/ai3-api",

@@ -8,8 +8,8 @@ import {
 const project: SubstrateProject = {
   specVersion: "1.0.0",
   version: "0.0.1",
-  name: "ai3-api-indexer",
-  description: "AI3 API - Indexer",
+  name: "ai3-api-indexer-mainnet",
+  description: "AI3 API - Indexer Mainnet",
   repository: "https://github.com/marc-aurele-besner/ai3-api",
   runner: {
     node: {
@@ -26,7 +26,8 @@ const project: SubstrateProject = {
   },
   network: {
     /* The genesis hash of the network (hash of block 0) */
-    chainId: process.env.CHAIN_ID!,
+    chainId:
+      "0x66455a580aabff303720aa83adbe6c44502922251c03ba73686d5245da9e21bd",
     /**
      * These endpoint(s) should be public non-pruned archive node
      * We recommend providing more than one endpoint for improved reliability, performance, and uptime
@@ -35,7 +36,7 @@ const project: SubstrateProject = {
      * If you use a rate limited endpoint, adjust the --batch-size and --workers parameters
      * These settings can be found in your docker-compose.yaml, they will slow indexing but prevent your project being rate limited
      */
-    endpoint: process.env.RPC_URLS!?.split(",") as string[] | string,
+    endpoint: "ws://caddy:8000",
     // @ts-ignore
     types: {
       Solution: {

@@ -1,0 +1,52 @@
+{
+  "name": "indexer",
+  "version": "1.0.0",
+  "description": "AI3 API - Indexer",
+  "main": "dist/index.js",
+  "scripts": {
+    "codegen": "subql codegen",
+    "build": "subql build"
+  },
+  "homepage": "https://github.com/marc-aurele-besner/ai3-api",
+  "files": [
+    "dist",
+    "schema.graphql",
+    "project.yaml"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marc-aurele-besner/ai3-api"
+  },
+  "author": {
+    "name": "Marc-Aurele Besner",
+    "url": "https://github.com/marc-aurele-besner"
+  },
+  "bugs": {
+    "url": "https://github.com/marc-aurele-besner/ai3-api/issues"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@apollo/client": "^3.7.16",
+    "@autonomys/auto-consensus": "^1.0.6",
+    "@autonomys/auto-utils": "^1.0.6",
+    "@polkadot/api": "^12.4.2",
+    "@polkadot/types": "^14.1.1",
+    "@polkadot/util": "^13.2.2",
+    "@polkadot/util-crypto": "^13.2.2",
+    "@subql/cli": "^5.3.0",
+    "@subql/common-substrate": "^4.3.2",
+    "@subql/node": "^5.2.9",
+    "@subql/types": "^3.11.3",
+    "@types/node": "^22.9.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "dotenv": "^16.4.5",
+    "graphql": "^16.9.0",
+    "prom-client": "^14.2.0",
+    "rxjs": "^7.8.1",
+    "typescript": "^5.2.2"
+  },
+  "resolutions": {
+    "ipfs-unixfs": "6.0.6"
+  }
+}
