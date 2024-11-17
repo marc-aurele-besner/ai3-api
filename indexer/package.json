@@ -1,0 +1,54 @@
+{
+  "name": "indexer",
+  "version": "1.0.0",
+  "description": "AI3 API - Indexer",
+  "main": "dist/index.js",
+  "scripts": {
+    "codegen:mainnet": "RPC_URLS=ws://caddy:8000 CHAIN_ID=0x66455a580aabff303720aa83adbe6c44502922251c03ba73686d5245da9e21bd subql codegen && mv project.yaml project-mainnet.yaml",
+    "codegen:taurus": "RPC_URLS=ws://caddy:8001 CHAIN_ID=0x295aeafca762a304d92ee1505548695091f6082d3f0aa4d092ac3cd6397a6c5e subql codegen && mv project.yaml project-taurus.yaml",
+    "codegen": "npm run codegen:mainnet && npm run codegen:taurus",
+    "build": "subql build"
+  },
+  "homepage": "https://github.com/marc-aurele-besner/ai3-api",
+  "files": [
+    "dist",
+    "schema.graphql",
+    "project.yaml"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marc-aurele-besner/ai3-api"
+  },
+  "author": {
+    "name": "Marc-Aurele Besner",
+    "url": "https://github.com/marc-aurele-besner"
+  },
+  "bugs": {
+    "url": "https://github.com/marc-aurele-besner/ai3-api/issues"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@apollo/client": "^3.7.16",
+    "@autonomys/auto-consensus": "^1.0.6",
+    "@autonomys/auto-utils": "^1.0.6",
+    "@polkadot/api": "^12.4.2",
+    "@polkadot/types": "^14.1.1",
+    "@polkadot/util": "^13.2.2",
+    "@polkadot/util-crypto": "^13.2.2",
+    "@subql/cli": "^5.3.0",
+    "@subql/common-substrate": "^4.3.2",
+    "@subql/node": "^5.2.9",
+    "@subql/types": "^3.11.3",
+    "@types/node": "^22.9.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
+    "dotenv": "^16.4.5",
+    "graphql": "^16.9.0",
+    "prom-client": "^14.2.0",
+    "rxjs": "^7.8.1",
+    "typescript": "^5.2.2"
+  },
+  "resolutions": {
+    "ipfs-unixfs": "6.0.6"
+  }
+}
