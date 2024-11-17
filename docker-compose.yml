@@ -1,0 +1,250 @@
+volumes:
+  caddy_config: {}
+  caddy_data: {}
+  node_mainnet_data: {}
+  node_taurus_data: {}
+  postgres_db: {}
+
+services:
+  # Caddy Reverse Proxy with CORS enabled
+  caddy:
+    ulimits:
+      nofile:
+        soft: 65536 # Soft limit for open files (WebSocket connections count)
+        hard: 65536 # Hard limit for open files
+    image: caddy:latest
+    ports:
+      - "8000:9944" # Map external 8000
+      - "8001:9945" # Map external 8001
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile # Mount the Caddyfile
+      - caddy_data:/data # Volume for Let's Encrypt certificates
+      - caddy_config:/config
+    depends_on:
+      - node_mainnet
+      - node_taurus
+    restart: unless-stopped
+
+  # Subspace Node
+  node_mainnet:
+    image: ghcr.io/autonomys/node:mainnet-2024-nov-13
+    volumes:
+      - node_mainnet_data:/var/subspace:rw
+    ports:
+      - "30335:30335/tcp"
+      - "30435:30435/tcp"
+    restart: unless-stopped
+    command:
+      [
+        "run",
+        "--chain",
+        "mainnet",
+        "--base-path",
+        "/var/subspace",
+        "--listen-on",
+        "/ip4/0.0.0.0/tcp/30334",
+        "--dsn-listen-on",
+        "/ip4/0.0.0.0/tcp/30435",
+        "--rpc-cors",
+        "all",
+        "--rpc-methods",
+        "unsafe",
+        "--rpc-listen-on",
+        "0.0.0.0:9945",
+        "--rpc-max-subscriptions-per-connection",
+        "1000",
+        "--rpc-max-connections",
+        "20000",
+        "--name",
+        "ai3-api",
+        "--sync",
+        "full",
+      ]
+    healthcheck:
+      timeout: 5s
+      interval: 30s
+      retries: 60
+
+  node_taurus:
+    image: ghcr.io/autonomys/node:taurus-2024-nov-05
+    volumes:
+      - node_taurus_data:/var/subspace:rw
+    ports:
+      - "30336:30336/tcp"
+      - "30436:30436/tcp"
+    restart: unless-stopped
+    command:
+      [
+        "run",
+        "--chain",
+        "taurus",
+        "--base-path",
+        "/var/subspace",
+        "--listen-on",
+        "/ip4/0.0.0.0/tcp/30336",
+        "--dsn-listen-on",
+        "/ip4/0.0.0.0/tcp/30436",
+        "--rpc-cors",
+        "all",
+        "--rpc-methods",
+        "unsafe",
+        "--rpc-listen-on",
+        "0.0.0.0:9946",
+        "--rpc-max-subscriptions-per-connection",
+        "1000",
+        "--rpc-max-connections",
+        "20000",
+        "--name",
+        "ai3-api",
+        "--sync",
+        "full",
+      ]
+    healthcheck:
+      timeout: 5s
+      interval: 30s
+      retries: 60
+
+  # Postgres Database
+  postgres:
+    image: postgres:16-alpine
+    volumes:
+      - postgres_db:/var/lib/postgresql/data
+      - ./db/docker-entrypoint-initdb.d/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ./db/postgresql.conf:/etc/postgresql/postgresql.conf
+    restart: unless-stopped
+    hostname: postgres
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_MAX_CONNECTIONS: 500
+    ports:
+      - "${DB_PORT}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+
+  # Hasura GraphQL Engine
+  hasura:
+    image: hasura/graphql-engine:v2.40.0
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./db/migrations:/hasura-migrations
+      - ./db/metadata:/hasura-metadata
+    restart: unless-stopped
+    environment:
+      # Essential Environment Variables
+      HASURA_GRAPHQL_METADATA_DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres # Main database connection
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET} # Admin access secret
+      HASURA_GRAPHQL_JWT_SECRET: ${HASURA_GRAPHQL_JWT_SECRET} # JWT authentication secret
+
+      # Console and Development Mode
+      HASURA_GRAPHQL_ENABLE_CONSOLE: ${HASURA_GRAPHQL_ENABLE_CONSOLE} # Disable console in production
+      HASURA_GRAPHQL_DEV_MODE: "true" # Disable development mode features
+
+      # Role and CORS Settings
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: user # Default role for unauthenticated users
+      HASURA_GRAPHQL_CORS_DOMAIN: "*" # Allowed domains for CORS
+      HASURA_GRAPHQL_STRINGIFY_NUMERIC_TYPES: "true"
+
+      # Performance and Connection Settings
+      HASURA_GRAPHQL_MAX_CONNECTIONS: 100 # Maximum number of database connections
+      HASURA_GRAPHQL_STRIPES: 2 # Number of connection pool stripes
+      HASURA_GRAPHQL_CONNECTIONS_PER_STRIPE: 50 # Connections per stripe
+      HASURA_GRAPHQL_IDLE_TIMEOUT: 180 # Idle connection timeout in seconds
+      HASURA_GRAPHQL_TIMEOUT: 60 # Request timeout in seconds
+
+      # Logging Settings
+      HASURA_GRAPHQL_LOG_LEVEL: "warn" # Log verbosity level
+      HASURA_GRAPHQL_ENABLED_LOG_TYPES: "startup,http-log,webhook-log,websocket-log,query-log" # Enabled log types
+
+      # Security and Authorization
+      HASURA_GRAPHQL_ENABLE_ALLOWLIST: "false" # Disable query allowlisting
+
+      # Hasura Migrations and Metadata
+      HASURA_GRAPHQL_MIGRATIONS_DIR: /hasura-migrations
+      HASURA_GRAPHQL_METADATA_DIR: /hasura-metadata
+    ports:
+      - "${HASURA_GRAPHQL_PORT}:8080"
+    command:
+      - graphql-engine
+      - serve
+
+  # Indexers Subquery Nodes
+  indexer_mainnet:
+    image: subquerynetwork/subql-node-substrate:latest
+    ports:
+      - "3001:3001"
+    depends_on:
+      "postgres":
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      ENDPOINT: "ws://caddy:8000"
+      CHAIN_ID: "0x66455a580aabff303720aa83adbe6c44502922251c03ba73686d5245da9e21bd"
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_DATABASE: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+    volumes:
+      - ./indexer:/indexer
+    command:
+      - ${SUB_COMMAND:-}
+      - -f=/indexer
+      - -c=/indexer/project-mainnet.yaml
+      - --db-schema=mainnet
+      - --workers=4
+      - --unsafe
+      - --batch-size=25
+      - --unfinalized-blocks=true
+      - --disable-historical=false
+      - --port 3001
+      - --network-endpoint http://caddy:8000
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://indexer_mainnet:3001/ready"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+  indexer_taurus:
+    image: subquerynetwork/subql-node-substrate:latest
+    ports:
+      - "3002:3002"
+    depends_on:
+      "postgres":
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      ENDPOINT: "ws://caddy:8001"
+      CHAIN_ID: "0x295aeafca762a304d92ee1505548695091f6082d3f0aa4d092ac3cd6397a6c5e"
+      DB_USER: postgres
+      DB_PASS: postgres
+      DB_DATABASE: postgres
+      DB_HOST: postgres
+      DB_PORT: 5432
+    volumes:
+      - ./indexer:/indexer
+    command:
+      - ${SUB_COMMAND:-}
+      - -f=/indexer
+      - -c=/indexer/project-taurus.yaml
+      - --db-schema=taurus
+      - --workers=4
+      - --unsafe
+      - --batch-size=25
+      - --unfinalized-blocks=true
+      - --disable-historical=false
+      - --port 3002
+      - --network-endpoint http://caddy:8001
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://indexer_taurus:3002/ready"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
