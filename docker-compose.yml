@@ -66,7 +66,7 @@ services:
       retries: 60
 
   node_taurus:
-    image: ghcr.io/autonomys/node:taurus-2024-nov-05
+    image: ghcr.io/autonomys/node:sha-4452df8718d980642de6092832e43a64796af383
     volumes:
       - node_taurus_data:/var/subspace:rw
     ports:
