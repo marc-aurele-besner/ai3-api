@@ -1,6 +1,7 @@
 import {
   AccountHistory,
   Block,
+  Cid,
   Event,
   Extrinsic,
   Log,
@@ -91,7 +92,8 @@ export async function createAndSaveExtrinsic(
   error: string,
   tip: bigint,
   fee: bigint,
-  pos: number
+  pos: number,
+  cid?: string
 ): Promise<Extrinsic> {
   const extrinsicId = `${blockHeight}-${indexInBlock}`;
   const sortId = getSortId(blockHeight, BigInt(indexInBlock));
@@ -115,6 +117,7 @@ export async function createAndSaveExtrinsic(
     tip,
     fee,
     pos,
+    cid,
   });
   await extrinsic.save();
   return extrinsic;
@@ -131,7 +134,8 @@ export async function createAndSaveEvent(
   timestamp: Date,
   phase: string,
   pos: number,
-  args: string
+  args: string,
+  cid?: string
 ): Promise<Event> {
   const id = `${blockHeight}-${indexInBlock.toString()}`;
   const sortId = getSortId(blockHeight, BigInt(indexInBlock));
@@ -150,6 +154,7 @@ export async function createAndSaveEvent(
     phase,
     pos,
     args,
+    cid,
   });
   await event.save();
   return event;
@@ -230,4 +235,28 @@ export async function createAndSaveReward(
   });
   await reward.save();
   return reward;
+}
+
+export async function createAndSaveCid(
+  cid: string,
+  blockHeight: bigint,
+  blockHash: string,
+  extrinsicId: string,
+  extrinsicHash: string,
+  indexInBlock: number,
+  links: string[],
+  timestamp: Date
+): Promise<Cid> {
+  const _cid = Cid.create({
+    id: cid,
+    blockHeight,
+    blockHash,
+    extrinsicId,
+    extrinsicHash,
+    indexInBlock,
+    links,
+    timestamp,
+  });
+  await _cid.save();
+  return _cid;
 }
