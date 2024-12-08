@@ -202,10 +202,12 @@ services:
       - --workers=4
       - --unsafe
       - --batch-size=25
+      - --scale-batch-size
       - --unfinalized-blocks=true
       - --disable-historical=false
       - --port 3001
       - --network-endpoint http://caddy:8000
+      #  - --profiler
     healthcheck:
       test: ["CMD", "curl", "-f", "http://indexer_mainnet:3001/ready"]
       interval: 3s
@@ -237,10 +239,12 @@ services:
       - --workers=4
       - --unsafe
       - --batch-size=25
+      - --scale-batch-size
       - --unfinalized-blocks=true
       - --disable-historical=false
       - --port 3002
       - --network-endpoint http://caddy:8001
+      #  - --profiler
     healthcheck:
       test: ["CMD", "curl", "-f", "http://indexer_taurus:3002/ready"]
       interval: 3s
